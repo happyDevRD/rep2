@@ -1,0 +1,69 @@
+# =============================================================================
+# iFlowServer — Java / Spring Boot / Maven
+# =============================================================================
+
+# --- Eclipse / STS (NO subir al repositorio) ---
+.metadata/
+*.launch
+.settings/
+.classpath
+.project
+.factorypath
+.sts4-cache/
+.apt_generated/
+bin/
+RemoteSystemsTempFiles/
+
+# --- Maven ---
+target/
+!.mvn/wrapper/maven-wrapper.jar
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+
+# --- Spring Boot ---
+HELP.md
+
+# --- Build alternativo ---
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+/nbproject/private/
+/nbbuild/
+/nbdist/
+/.nb-gradle/
+
+# --- IDE ---
+.idea/
+*.iws
+*.iml
+*.ipr
+.vscode/
+
+# --- JVM / diagnóstico ---
+hs_err_pid*
+replay_pid*
+*.mdmp
+*.hprof
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Configuración local y secretos (usar *.example como plantilla) ---
+**/application-local.properties
+**/application-local.yml
+**/application-dev.properties
+**/config.properties
+**/iflow.p12
+*.p12
+.env
+.env.*
+!.env.example
+
+# --- Sistema operativo ---
+.DS_Store
+Thumbs.db

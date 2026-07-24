@@ -1,0 +1,14 @@
+# Plantilla de config.properties (copiar a config.properties y rellenar).
+# config.properties está en .gitignore — no versionar secretos ni IPs internas.
+
+Usuario = gos
+PassWord = CHANGE_ME
+Entidad = 1
+Provincia = 29
+Municipio = 15
+Ciudad = Ejemplo
+NombreEntidad = Organismo Genérico
+Certificado = C:\\certificados\\
+Verificador = http://localhost:8080/eVerifica/
+GestionTributos = http://localhost:8080/GestionTributos/services/GestionTributos
+UrlSedeNotificacion = http://localhost:8080/sede/jsp/home.jsp

@@ -1,0 +1,29 @@
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+            - "http://localhost:4200"
+            - "http://127.0.0.1:4200"
+            allowedHeaders: "*"
+            allowedMethods:
+            - GET
+            - POST
+            - DELETE
+            - PUT
+      routes:
+      - id: gos-service
+        uri: lb://gos-service
+        predicates:
+          - Path=/api/gos/**
+        filters:
+          - StripPrefix=2
+      - id: oauth-service
+        uri: lb://oauth-service
+        predicates:
+          - Path=/api/security/**
+        filters:
+          - StripPrefix=2
+          
