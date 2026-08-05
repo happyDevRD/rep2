@@ -96,8 +96,9 @@ public class MetadatoGrupoAtribController {
 	public MetadatoGrupoAtributo crear(@RequestBody MetadatoGrupoAtributoDto oMetadatos, @PathVariable Long idProc) throws Exception{
 		
 		List<GfTarifa> oTarifaBus = tarifaService.findByIdProce(idProc);
-		
-		MetadatoGrupoAtributo oMetadatoGrupoBus = metadatoGrupoAtributoService.findByIdGrupoAndEtiGruAtrib(oTarifaBus.get(0).getIdGrupo(), oMetadatos.getEtiGruAtrib());
+		Long idGrupoTarifa = (oTarifaBus != null && !oTarifaBus.isEmpty()) ? oTarifaBus.get(0).getIdGrupo() : null;
+
+		MetadatoGrupoAtributo oMetadatoGrupoBus = metadatoGrupoAtributoService.findByIdGrupoAndEtiGruAtrib(idGrupoTarifa, oMetadatos.getEtiGruAtrib());
 		
 		if(oMetadatoGrupoBus != null) {
 			throw new MetadatoGrupoAtribError(oMetadatoGrupoBus.getEtiGruAtrib());

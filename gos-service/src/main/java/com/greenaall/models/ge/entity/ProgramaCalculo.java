@@ -26,7 +26,7 @@ public class ProgramaCalculo implements Serializable {
 	@Column(name = "modulo")
 	private Short modulo;
 
-	@Column(name = "def_progr")
+	@Column(name = "def_progr", columnDefinition = "LONGBLOB")
 	private Object defProgr;
 
 	@Column(name = "id_gru_param")

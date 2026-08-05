@@ -1,12 +1,12 @@
 package com.greenaall.gf.controllers;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.greenaall.exception.NoDataFoundException;
 import com.greenaall.models.gf.entity.GfNotificador;
 import com.greenaall.models.gf.service.NotificadorServiceImpl;
 
@@ -24,9 +24,8 @@ public class NotificadorController {
 	@GetMapping("/notificador/listar")
 	public List<GfNotificador> listar() {
 		List<GfNotificador> aNotificador = service.findAll();
-		 
-		if(aNotificador == null || aNotificador.isEmpty()) {
-			 throw new NoDataFoundException();
+		if (aNotificador == null || aNotificador.isEmpty()) {
+			return Collections.emptyList();
 		}
 		return aNotificador;
 	}

@@ -646,13 +646,13 @@ public class ArchivoApplicationService {
 			oEtiquetas.setNumDocInter(oPersonaEntidad.getNumDocum());
 			oEtiquetas.setDomInter(oPersonaEntidad.getDirPosta());
 			oEtiquetas.setCopInter(String.valueOf(oPersonaEntidad.getCodPosta()));
-			if (oPersonaEntidad.getCodProvi() > 0) {
+			if (oPersonaEntidad.getCodProvi() != null && oPersonaEntidad.getCodProvi() > 0) {
 				Long codProvi = Long.valueOf(oPersonaEntidad.getCodProvi());
 				Provincia oProvincia = serviceProvincia.findById(codProvi);
 				if (oProvincia != null) {
 					oEtiquetas.setProInter(oProvincia.getDesProvi());
 				}
-				if (oPersonaEntidad.getCodMunic() > 0) {
+				if (oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 					MunicipioPK oMunicipioPK = new MunicipioPK();
 					oMunicipioPK.setCodProvi(oPersonaEntidad.getCodProvi());
 					oMunicipioPK.setCodMunic(oPersonaEntidad.getCodMunic());
@@ -673,13 +673,13 @@ public class ArchivoApplicationService {
 				oEtiquetas.setNumDocInter(oPersonaEntidadRepre.getNumDocum());
 				oEtiquetas.setDomInter(oPersonaEntidadRepre.getDirPosta());
 				oEtiquetas.setCopInter(String.valueOf(oPersonaEntidadRepre.getCodPosta()));
-				if (oPersonaEntidadRepre.getCodProvi() > 0) {
+				if (oPersonaEntidadRepre.getCodProvi() != null && oPersonaEntidadRepre.getCodProvi() > 0) {
 					Long codProvi = Long.valueOf(oPersonaEntidadRepre.getCodProvi());
 					Provincia oProvincia = serviceProvincia.findById(codProvi);
 					if (oProvincia != null) {
 						oEtiquetas.setProInter(oProvincia.getDesProvi());
 					}
-					if (oPersonaEntidad.getCodMunic() > 0) {
+					if (oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 						MunicipioPK oMunicipioPK = new MunicipioPK();
 						oMunicipioPK.setCodProvi(oPersonaEntidadRepre.getCodProvi());
 						oMunicipioPK.setCodMunic(oPersonaEntidadRepre.getCodMunic());

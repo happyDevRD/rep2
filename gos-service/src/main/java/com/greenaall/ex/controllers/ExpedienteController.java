@@ -193,19 +193,22 @@ public class ExpedienteController {
 			throw new NoDataFoundException();
 		}
 		oTramitador.get(0).setPosesion(Short.valueOf((short) 0));
-		oTramitador.get(0).setEstadoTramitacion(EnumEstadoTramitacion.TRAMITADO);
+		oTramitador.get(0).setEstadoTramitacion(EnumEstadoTramitacion.DEVUELTO);
 		serviceTramitador.save(oTramitador.get(0));
 
 		List<Mensaje> aMensaje = serviceMensaje.findByDestinatarioAndExpediente(idOrgUsuar, idExped);
-		aMensaje.get(0).setEstado(EnumEstadoMensaje.FINALIZADO);
-		aMensaje.get(0).setFecTramitacion(new Date());
-		serviceMensaje.save(aMensaje.get(0));
+		if (aMensaje != null && !aMensaje.isEmpty()) {
+			aMensaje.get(0).setEstado(EnumEstadoMensaje.FINALIZADO);
+			aMensaje.get(0).setFecTramitacion(new Date());
+			serviceMensaje.save(aMensaje.get(0));
+		}
 	}
 	
-	@PostMapping("/expediente/crear/{email}/{forNotif}")
+	@PostMapping("/expediente/crear")
 	@ResponseStatus(HttpStatus.CREATED)
-	public Expediente crear(@RequestBody Expediente expediente, @PathVariable String email,
-			@PathVariable short forNotif) throws Exception {
+	public Expediente crear(@RequestBody Expediente expediente) throws Exception {
+		String email = expediente.getEmail();
+		short forNotif = expediente.getForNotif() != null ? expediente.getForNotif() : 0;
 		expediente.setFecContr(new Date());
 		BigDecimal max = service.max(expediente.getEjercicio());
 		if (max == null) {
@@ -452,13 +455,13 @@ public class ExpedienteController {
 			PersonaEntidad oPersonaEntidad = servicePersonaEntidad.findById(oPersonaEntidadPK);
 			if (oPersonaEntidad != null) {
 				PersonaEntidadDto oPersonaEntidadDto = PersonaEntidadValide.getPersonaDto(oPersonaEntidad);
-				if (oPersonaEntidad.getCodProvi() > 0) {
+				if (oPersonaEntidad.getCodProvi() != null && oPersonaEntidad.getCodProvi() > 0) {
 					Long codProvi = Long.valueOf(oPersonaEntidad.getCodProvi());
 					Provincia oProvincia = serviceProvincia.findById(codProvi);
 					if (oProvincia != null) {
 						oPersonaEntidadDto.setProvincia(oProvincia.getDesProvi());
 					}
-					if (oPersonaEntidad.getCodMunic() > 0) {
+					if (oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 						MunicipioPK MunicipioPK = new MunicipioPK();
 						MunicipioPK.setCodProvi(oPersonaEntidad.getCodProvi());
 						MunicipioPK.setCodMunic(oPersonaEntidad.getCodMunic());
@@ -610,13 +613,13 @@ public class ExpedienteController {
 					PersonaEntidad oPersonaEntidad = servicePersonaEntidad.findById(oPersonaEntidadPK);
 					if (oPersonaEntidad != null) {
 						PersonaEntidadDto oPersonaEntidadDto = PersonaEntidadValide.getPersonaDto(oPersonaEntidad);
-						if (oPersonaEntidad.getCodProvi() > 0) {
+						if (oPersonaEntidad.getCodProvi() != null && oPersonaEntidad.getCodProvi() > 0) {
 							Long codProvi = Long.valueOf(oPersonaEntidad.getCodProvi());
 							Provincia oProvincia = serviceProvincia.findById(codProvi);
 							if (oProvincia != null) {
 								oPersonaEntidadDto.setProvincia(oProvincia.getDesProvi());
 							}
-							if (oPersonaEntidad.getCodMunic() > 0) {
+							if (oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 								MunicipioPK MunicipioPK = new MunicipioPK();
 								MunicipioPK.setCodProvi(oPersonaEntidad.getCodProvi());
 								MunicipioPK.setCodMunic(oPersonaEntidad.getCodMunic());
@@ -700,7 +703,7 @@ public class ExpedienteController {
 		Expediente oExpediente = service.findById(id);
 		List<Tramite> aTramite = serviceTramite.findByExpediente(id);
 		List<Archivo> aTareaArchivo = new ArrayList<>();
-		if (!aTramite.isEmpty() && aTramite != null) {
+		if (aTramite != null && !aTramite.isEmpty()) {
 			for (int i = 0; i < aTramite.size(); i++) {
 				List<TareaTramiteExpediente> aTarea = serviceTareaTramiteExpediente
 						.findByTramite(aTramite.get(i).getId());

@@ -537,7 +537,7 @@ public class TareaTramiteExpedienteController {
 								}
 							}
 
-							if (aDiaFestivo != null && !aDiaFestivo.isEmpty()) {
+							if ((aDiaFestivo = aDiaFestivo == null ? Collections.emptyList() : aDiaFestivo) != null) {
 								try {
 									Date oFecha = new Date();
 									String color = "VERDE";
@@ -840,7 +840,7 @@ public class TareaTramiteExpedienteController {
 					}
 				}
 
-				if (aDiaFestivo != null && !aDiaFestivo.isEmpty()) {
+				if ((aDiaFestivo = aDiaFestivo == null ? Collections.emptyList() : aDiaFestivo) != null) {
 					try {
 						Date oFecha = new Date();
 						String color = "VERDE";
@@ -1140,7 +1140,7 @@ public class TareaTramiteExpedienteController {
 					}
 				}
 
-				if (aDiaFestivo != null && !aDiaFestivo.isEmpty()) {
+				if ((aDiaFestivo = aDiaFestivo == null ? Collections.emptyList() : aDiaFestivo) != null) {
 					try {
 						Date oFecha = new Date();
 						String color = "VERDE";
@@ -1378,7 +1378,7 @@ public class TareaTramiteExpedienteController {
 		int dias = 0;
 
 		if (aTareaTramiteExped == null || aTareaTramiteExped.isEmpty()) {
-			throw new NoDataFoundException();
+			return aTareaTramiteExpedDto;
 		}
 		List<DiaFestivo> aDiaFestivo = serviceDiaFestivo.findByFecFesti(fechaInicio, fechaFin);
 
@@ -1433,7 +1433,7 @@ public class TareaTramiteExpedienteController {
 				tipoFirma = "ATENDIDA";
 				TareaProcedimiento oTareaProcedimiento = serviceTareaProcedimiento
 						.findById(aTareaTramiteExped.get(i).getTareaProcedimiento());
-				if (oTareaProcedimiento != null && !oTareaProcedimiento.getTareaAutomatica()) {
+				if (oTareaProcedimiento != null && !Boolean.TRUE.equals(oTareaProcedimiento.getTareaAutomatica())) {
 					if (oTareaProcedimiento.getProcesoFirmadoDefecto() == null) {
 						System.err.println("La tarea del procedimiento no tiene proceso firmado");
 						// throw new ExcepcionSolicitudFirmado();
@@ -1442,7 +1442,7 @@ public class TareaTramiteExpedienteController {
 								.findById(oTareaProcedimiento.getProcesoFirmadoDefecto());
 						if (oProcesoFirmado == null) {
 							System.err.println("No existe proceso firmado");
-							throw new ExcepcionSolicitudFirmado();
+							// No tumbar el listado: continuar sin tipo de firma especial
 						} else if (!oProcesoFirmado.getTipFirma().equals(Short.valueOf((short) 1))) {
 							tipoFirma = "DESATENDIDA";
 						}
@@ -1453,7 +1453,7 @@ public class TareaTramiteExpedienteController {
 			if (aTareaTramiteExped.get(i).getArchivo() != null && tipoFirma.equals("ATENDIDA")) {
 				Archivo oArchivo = archivoService.findById(aTareaTramiteExped.get(i).getArchivo());
 				long idDocum = 0;
-				if (oArchivo.getHuella() != null && isLong(oArchivo.getHuella())) {
+				if (oArchivo != null && oArchivo.getHuella() != null && isLong(oArchivo.getHuella())) {
 					idDocum = Long.valueOf(Long.valueOf(oArchivo.getHuella()).longValue());
 					InformacionDocumento infDocumento;
 					try {
@@ -1486,7 +1486,8 @@ public class TareaTramiteExpedienteController {
 						System.err.println(e.getMessage());
 						e.printStackTrace();
 					}
-				} else if(aTareaTramiteExped.get(i).getFecFin() != null && 	oArchivo.getIdPeticion() != null) {	
+				} else if (oArchivo != null && aTareaTramiteExped.get(i).getFecFin() != null
+						&& oArchivo.getIdPeticion() != null) {	
 					oTareaTramiteExpDTO.setFirmado(aTareaTramiteExped.get(i).getFirmado());
 				} else {
 					oTareaTramiteExpDTO.setFirmado(Short.valueOf((short) 0));
@@ -1576,62 +1577,61 @@ public class TareaTramiteExpedienteController {
 				oTareaTramiteExpDTO.setVisible(aTareaTramiteExped.get(i).getVisible());
 			}
 
-			if (aTareaTramiteExped != null && aTareaTramiteExped.get(i).getFecInicio() != null) {
-
+			// Plazo/color es informativo: si falta configuración no debe tumbar el listado completo.
+			if (aTareaTramiteExped.get(i).getFecInicio() != null
+					&& aTareaTramiteExped.get(i).getTareaProcedimiento() != null) {
 				TareaProcedimiento oTareaProcedimeinto = serviceTareaProcedimiento
 						.findById(aTareaTramiteExped.get(i).getTareaProcedimiento());
 
-				if (oTareaProcedimeinto != null
-						&& (oTareaProcedimeinto.getPlazo() == null || oTareaProcedimeinto.getPlazo() == null)) {
-					throw new NoDataFoundException();
-				}
-				if (oTareaProcedimeinto.getTipoPlazo() == null) {
-					oTareaProcedimeinto.setTipoPlazo(EnumTipoPlazoTarea.SINPLAZO);
-				}
-				if (!oTareaProcedimeinto.getTipoPlazo().equals(EnumTipoPlazoTarea.SINPLAZO)) {
-					if (oTareaProcedimeinto.getTipoPlazo().equals(EnumTipoPlazoTarea.SEMANAS)) {
-						dias = oTareaProcedimeinto.getPlazo() * 7;
-					} else if (oTareaProcedimeinto.getTipoPlazo().equals(EnumTipoPlazoTarea.MESES)) {
-						dias = oTareaProcedimeinto.getPlazo() * 30;
-					} else if (oTareaProcedimeinto.getTipoPlazo().equals(EnumTipoPlazoTarea.ANOS)) {
-						dias = oTareaProcedimeinto.getPlazo() * 360;
-					} else if (oTareaProcedimeinto.getTipoPlazo().equals(EnumTipoPlazoTarea.DIAS)) {
-						dias = oTareaProcedimeinto.getPlazo() * 1;
+				if (oTareaProcedimeinto != null) {
+					if (oTareaProcedimeinto.getTipoPlazo() == null) {
+						oTareaProcedimeinto.setTipoPlazo(EnumTipoPlazoTarea.SINPLAZO);
+					}
+					dias = 0;
+					if (oTareaProcedimeinto.getPlazo() != null
+							&& !oTareaProcedimeinto.getTipoPlazo().equals(EnumTipoPlazoTarea.SINPLAZO)) {
+						if (oTareaProcedimeinto.getTipoPlazo().equals(EnumTipoPlazoTarea.SEMANAS)) {
+							dias = oTareaProcedimeinto.getPlazo() * 7;
+						} else if (oTareaProcedimeinto.getTipoPlazo().equals(EnumTipoPlazoTarea.MESES)) {
+							dias = oTareaProcedimeinto.getPlazo() * 30;
+						} else if (oTareaProcedimeinto.getTipoPlazo().equals(EnumTipoPlazoTarea.ANOS)) {
+							dias = oTareaProcedimeinto.getPlazo() * 360;
+						} else if (oTareaProcedimeinto.getTipoPlazo().equals(EnumTipoPlazoTarea.DIAS)) {
+							dias = oTareaProcedimeinto.getPlazo() * 1;
+						}
+					}
+
+					if ((aDiaFestivo = aDiaFestivo == null ? Collections.emptyList() : aDiaFestivo) != null) {
+						try {
+							Date oFecha = DiaHabil.dameFechaHabil(aTareaTramiteExped.get(i).getFecInicio(), false, dias,
+									false, aDiaFestivo);
+							if (oFecha == null) {
+								oFecha = new Date();
+							}
+							SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+							String fechaTope = sdf.format(oFecha);
+
+							int diferencia = Fecha.diferenciaFechaDias(oFechaHoy, oFecha);
+							String color = "VERDE";
+							if (diferencia >= 7 && diferencia <= 10) {
+								color = "AMARILLO";
+							} else if (diferencia < 7) {
+								color = "ROJO";
+							}
+							oTareaTramiteExpDTO.setColor(color);
+							if (aTareaTramiteExped.get(i).getFecFin() != null
+									|| Boolean.TRUE.equals(oTareaProcedimeinto.getTareaAutomatica())) {
+								oTareaTramiteExpDTO.setColor("VERDE");
+							}
+							oTareaTramiteExpDTO.setFecPlazo(fechaTope);
+						} catch (Exception e) {
+							System.err.println("No se pudo calcular el plazo de la tarea "
+									+ aTareaTramiteExped.get(i).getId() + ": " + e.getMessage());
+						}
 					}
 				}
-
-				if (aDiaFestivo != null && !aDiaFestivo.isEmpty()) {
-					try {
-						Date oFecha = new Date();
-						String color = "VERDE";
-						oFecha = DiaHabil.dameFechaHabil(aTareaTramiteExped.get(i).getFecInicio(), false, dias, false,
-								aDiaFestivo);
-						if (oFecha == null) {
-							oFecha = new Date();
-						}
-						SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-						String fechaTope = sdf.format(oFecha);
-
-						int diferencia = Fecha.diferenciaFechaDias(oFechaHoy, oFecha);
-
-						if (diferencia >= 7 && diferencia <= 10) {
-							color = "AMARILLO";
-						} else if (diferencia < 7) {
-							color = "ROJO";
-						}
-						oTareaTramiteExpDTO.setColor(color);
-						if (aTareaTramiteExped.get(i).getFecFin() != null || oTareaProcedimeinto.getTareaAutomatica()) {
-							oTareaTramiteExpDTO.setColor("VERDE");
-						}
-						oTareaTramiteExpDTO.setFecPlazo(fechaTope);
-					} catch (Exception e) {
-						throw new NoDataFoundException();
-					}
-				}
-				aTareaTramiteExpedDto.add(oTareaTramiteExpDTO);
-			} else {
-				throw new NoDataFoundException();
 			}
+			aTareaTramiteExpedDto.add(oTareaTramiteExpDTO);
 		}
 
 		return aTareaTramiteExpedDto;
@@ -2130,13 +2130,13 @@ public class TareaTramiteExpedienteController {
 							oEtiquetas.setNumDocInter(oPersonaEntidad.getNumDocum());
 							oEtiquetas.setDomInter(oPersonaEntidad.getDirPosta());
 							oEtiquetas.setCopInter(String.valueOf(oPersonaEntidad.getCodPosta()));
-							if (oPersonaEntidad.getCodProvi() > 0) {
+							if (oPersonaEntidad.getCodProvi() != null && oPersonaEntidad.getCodProvi() > 0) {
 								Long codProvi = Long.valueOf(oPersonaEntidad.getCodProvi());
 								Provincia oProvincia = serviceProvincia.findById(codProvi);
 								if (oProvincia != null) {
 									oEtiquetas.setProInter(oProvincia.getDesProvi());
 								}
-								if (oPersonaEntidad.getCodMunic() > 0) {
+								if (oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 									MunicipioPK MunicipioPK = new MunicipioPK();
 									MunicipioPK.setCodProvi(oPersonaEntidad.getCodProvi());
 									MunicipioPK.setCodMunic(oPersonaEntidad.getCodMunic());
@@ -2157,13 +2157,13 @@ public class TareaTramiteExpedienteController {
 								oEtiquetas.setNumDocInter(oPersonaEntidadRepre.getNumDocum());
 								oEtiquetas.setDomInter(oPersonaEntidadRepre.getDirPosta());
 								oEtiquetas.setCopInter(String.valueOf(oPersonaEntidadRepre.getCodPosta()));
-								if (oPersonaEntidadRepre.getCodProvi() > 0) {
+								if (oPersonaEntidadRepre.getCodProvi() != null && oPersonaEntidadRepre.getCodProvi() > 0) {
 									Long codProvi = Long.valueOf(oPersonaEntidadRepre.getCodProvi());
 									Provincia oProvincia = serviceProvincia.findById(codProvi);
 									if (oProvincia != null) {
 										oEtiquetas.setProInter(oProvincia.getDesProvi());
 									}
-									if (oPersonaEntidad.getCodMunic() > 0) {
+									if (oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 										MunicipioPK MunicipioPK = new MunicipioPK();
 										MunicipioPK.setCodProvi(oPersonaEntidadRepre.getCodProvi());
 										MunicipioPK.setCodMunic(oPersonaEntidadRepre.getCodMunic());

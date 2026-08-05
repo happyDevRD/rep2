@@ -41,7 +41,7 @@ public class Interesado implements Serializable {
 	private Long expediente;
 
 	@Basic(optional = false)
-	@Column(name = "principal", columnDefinition = "default 0")
+	@Column(name = "principal", columnDefinition = "smallint default 0")
 	private short principal;
 
 	@Basic(optional = true)

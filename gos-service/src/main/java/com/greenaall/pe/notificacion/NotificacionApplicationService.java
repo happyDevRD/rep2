@@ -200,7 +200,7 @@ public class NotificacionApplicationService {
 			oPersonaEntidadPK.setIdHisPerso(notificacionDto.getIdHisRepre());
 			oPersonaEntidadPK.setIdPerso(notificacionDto.getIdRepre());
 			PersonaEntidad oPersonaEntidad = servicePersonaEntidad.findById(oPersonaEntidadPK);
-			if (oPersonaEntidad != null && oPersonaEntidad.getCodProvi() > 0 && oPersonaEntidad.getCodMunic() > 0) {
+			if (oPersonaEntidad != null && oPersonaEntidad.getCodProvi() != null && oPersonaEntidad.getCodProvi() > 0 && oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 				oNotificacion.setCodProvi(oPersonaEntidad.getCodProvi());
 				oNotificacion.setCodMunic(oPersonaEntidad.getCodMunic());
 				if (oNotificacion.getDomicilio() == null) {
@@ -216,7 +216,7 @@ public class NotificacionApplicationService {
 			oPersonaEntidadPK.setIdHisPerso(notificacionDto.getIdHisPerso());
 			oPersonaEntidadPK.setIdPerso(notificacionDto.getIdPerso());
 			PersonaEntidad oPersonaEntidad = servicePersonaEntidad.findById(oPersonaEntidadPK);
-			if (oPersonaEntidad != null && oPersonaEntidad.getCodProvi() > 0 && oPersonaEntidad.getCodMunic() > 0) {
+			if (oPersonaEntidad != null && oPersonaEntidad.getCodProvi() != null && oPersonaEntidad.getCodProvi() > 0 && oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 				oNotificacion.setCodProvi(oPersonaEntidad.getCodProvi());
 				oNotificacion.setCodMunic(oPersonaEntidad.getCodMunic());
 				if (oNotificacion.getDomicilio() == null) {

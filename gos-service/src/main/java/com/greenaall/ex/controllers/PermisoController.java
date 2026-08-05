@@ -102,7 +102,7 @@ public class PermisoController {
 			}
 			return aPermisoDto;
 		}else {
-			throw new NoDataFoundException();
+			return java.util.Collections.emptyList();
 		}
 	}
 	

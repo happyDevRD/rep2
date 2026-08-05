@@ -167,6 +167,26 @@ public class ArchivoValide {
 		
 	}
 
+	/** Ruta absoluta del fichero (misma lógica que {@link #altaArchivo}). */
+	public static String rutaArchivoExpediente(String sInstalacion, Short ejercicio, Integer numero,
+			String nombreArchivo, int tipo) {
+		if (sInstalacion == null || ejercicio == null || numero == null || nombreArchivo == null) {
+			return null;
+		}
+		String tipoArchivo = (tipo == 1) ? "solicitud" : "expediente";
+		if (sInstalacion.equals("C:\\iflow") || sInstalacion.equals("C:\\iflow\\")
+				|| sInstalacion.equals("c:\\iflow") || sInstalacion.equals("c:\\iflow\\")) {
+			return "C:\\iflow\\textos\\ex\\" + tipoArchivo + "\\" + ejercicio + "\\" + numero + "\\" + nombreArchivo;
+		}
+		if (sInstalacion.equals("C:\\Greenaall\\iflow\\") || sInstalacion.equals("C:\\Greenaall\\iflow")
+				|| sInstalacion.equals("c:\\Greenaall\\iflow\\") || sInstalacion.equals("c:\\Greenaall\\iflow")) {
+			return "C:\\Greenaall\\iflow\\textos\\ex\\" + tipoArchivo + "\\" + ejercicio + "\\" + numero + "\\"
+					+ nombreArchivo;
+		}
+		return "/srv/iflow/textos/ex/" + tipoArchivo + "/" + ejercicio + "/" + numero + "/" + tipoArchivo + "/"
+				+ nombreArchivo;
+	}
+
 	public static Archivo altaArchivo(String fichero64, String sInstalacion, Short ejercicio, Integer numero,
 			String nombreArchivo, int tipo) {
 

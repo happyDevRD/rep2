@@ -31,8 +31,8 @@ public class RdTemaDocumentoServiceImpl implements IRdTemaDocumentoService{
 	@Transactional(readOnly = true)
 	public List<RdTemaDocumento> findByIdOrgElemeAndIndActiv(Long idOrgEleme) {
 		List<RdTemaDocumento> aTemaDocumento = (List<RdTemaDocumento>) TemaDocumentoDao.findByIdOrgElemeAndIndActiv(idOrgEleme);
-		if(aTemaDocumento.isEmpty()) {
-			return null;
+		if(aTemaDocumento == null) {
+			return java.util.Collections.emptyList();
 		}
 		return aTemaDocumento;
 	}

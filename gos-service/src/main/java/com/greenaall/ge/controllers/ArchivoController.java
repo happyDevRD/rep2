@@ -544,6 +544,19 @@ public class ArchivoController {
 		Archivo oArchivo = ArchivoValide.altaArchivo(archivoDto.getsFichero64(), oParametroSistema.getValor(),
 				archivoDto.getEjeExped(), archivoDto.getNumExped(), archivoDto.getsNomFiche(), tipo);
 		if (oArchivo == null) {
+			// El fichero ya está en disco: reutilizar o registrar metadatos sin reescribir.
+			String rutaExistente = ArchivoValide.rutaArchivoExpediente(oParametroSistema.getValor(),
+					archivoDto.getEjeExped(), archivoDto.getNumExped(), archivoDto.getsNomFiche(), tipo);
+			Archivo existente = rutaExistente != null ? archivoService.findByDesArchi(rutaExistente) : null;
+			if (existente != null && existente.getCodArchi() != null) {
+				return existente.getCodArchi();
+			}
+			Archivo reutilizado = ArchivoValide.altaArchivoNuevo(oParametroSistema.getValor(),
+					archivoDto.getEjeExped(), archivoDto.getNumExped(), archivoDto.getsNomFiche());
+			if (reutilizado != null) {
+				reutilizado.setUsuContr(archivoDto.getUsuContr());
+				return archivoService.save(reutilizado).getCodArchi();
+			}
 			throw new ExcepcionArchivoExistente();
 		}
 		oArchivo.setUsuContr(archivoDto.getUsuContr());
@@ -557,29 +570,33 @@ public class ArchivoController {
 			throws Exception {
 
 		TareaTramiteExpediente oTareaTramiteExpediente = serviceTareaTramiteExpediente.findById(idTarea);
+		if (oTareaTramiteExpediente == null || oTareaTramiteExpediente.getTareaProcedimiento() == null
+				|| oTareaTramiteExpediente.getTareaProcedimiento() <= 0) {
+			return java.util.Collections.emptyList();
+		}
 		TareaProcedimiento oTareaProcedimiento = serviceTareaProcedimietno
 				.findById(oTareaTramiteExpediente.getTareaProcedimiento());
-		if (oTareaProcedimiento.getProcesoFirmadoDefecto() == null) {
+		if (oTareaProcedimiento == null || oTareaProcedimiento.getProcesoFirmadoDefecto() == null) {
 			System.err.println("La tarea del procedimiento no tiene proceso firmado");
-			throw new ExcepcionSolicitudFirmado();
+			return java.util.Collections.emptyList();
 		}
 
 		ProcesoFirmado oProcesoFirmado = serviceProcesoFirmado.findById(oTareaProcedimiento.getProcesoFirmadoDefecto());
 		if (oProcesoFirmado == null) {
 			System.err.println("No existe proceso firmado");
-			throw new ExcepcionSolicitudFirmado();
+			return java.util.Collections.emptyList();
 		}
 
 		if (!oProcesoFirmado.getTipFirma().equals(Short.valueOf((short) 1))) {
 			System.err.println("Es firma desatendida");
-			throw new ExcepcionSolicitudFirmado();
+			return java.util.Collections.emptyList();
 		}
 
 		List<Firma> aFirma = serviceFirma.findByIdProFirma(oProcesoFirmado.getIdProFirma());
 
 		if (aFirma == null || aFirma.isEmpty()) {
 			System.err.println("No existe firma");
-			throw new ExcepcionSolicitudFirmado();
+			return java.util.Collections.emptyList();
 		}
 
 		List<PersonaFirmante> aFirmantes = new ArrayList<PersonaFirmante>();
@@ -589,9 +606,9 @@ public class ArchivoController {
 			List<CargoPersona> aCargoPersona = serviceCargoPersona
 					.findByIdCargo(Integer.valueOf((oCargoFirma.getCodCargo())));
 
-			if (aCargoPersona == null) {
+			if (aCargoPersona == null || aCargoPersona.isEmpty()) {
 				System.err.println("No hay cargo persona para el cargo firmante para la firma");
-				throw new ExcepcionSolicitudFirmado();
+				continue;
 			}
 
 			PersonaFirmante firmanteDefecto = new PersonaFirmante();
@@ -637,9 +654,13 @@ public class ArchivoController {
 
 		String tipoFirma = "ATENDIDA";
 		TareaTramiteExpediente oTareaTramiteExpediente = serviceTareaTramiteExpediente.findById(idTarea);
+		if (oTareaTramiteExpediente == null || oTareaTramiteExpediente.getTareaProcedimiento() == null
+				|| oTareaTramiteExpediente.getTareaProcedimiento() <= 0) {
+			throw new ExcepcionSolicitudFirmado();
+		}
 		TareaProcedimiento oTareaProcedimiento = serviceTareaProcedimietno
 				.findById(oTareaTramiteExpediente.getTareaProcedimiento());
-		if (oTareaProcedimiento.getProcesoFirmadoDefecto() == null) {
+		if (oTareaProcedimiento == null || oTareaProcedimiento.getProcesoFirmadoDefecto() == null) {
 			System.err.println("La tarea del procedimiento no tiene proceso firmado");
 			throw new ExcepcionSolicitudFirmado();
 		}

@@ -610,13 +610,13 @@ public class LiquidacionApplicationService {
 			oEtiquetas.setNomPropi(oPersonaEntidad.getDesPerEntid());
 			oEtiquetas.setDomPropi(oPersonaEntidad.getDirPosta());
 			oEtiquetas.setCpPropi(Integer.toString(oPersonaEntidad.getCodPosta()));
-			if (oPersonaEntidad.getCodProvi() > 0) {
+			if (oPersonaEntidad.getCodProvi() != null && oPersonaEntidad.getCodProvi() > 0) {
 				Long codProvi = Long.valueOf(oPersonaEntidad.getCodProvi());
 				Provincia oProvincia = serviceProvincia.findById(codProvi);
 				if (oProvincia != null) {
 					oEtiquetas.setProPropi(oProvincia.getDesProvi());
 				}
-				if (oPersonaEntidad.getCodMunic() > 0) {
+				if (oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 					MunicipioPK MunicipioPK = new MunicipioPK();
 					MunicipioPK.setCodProvi(oPersonaEntidad.getCodProvi());
 					MunicipioPK.setCodMunic(oPersonaEntidad.getCodMunic());

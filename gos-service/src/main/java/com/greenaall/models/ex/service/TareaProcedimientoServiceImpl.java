@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.greenaall.exception.NoDataFoundException;
 import com.greenaall.models.ex.dao.TareaProcedimientoDao;
 import com.greenaall.models.ex.entity.TareaProcedimiento;
 
@@ -24,11 +23,7 @@ public class TareaProcedimientoServiceImpl implements ITareaProcedimientoService
 	@Override
 	@Transactional( readOnly = true)
 	public TareaProcedimiento findById(Long id) {
-		TareaProcedimiento tareaProcedimiento = dao.findById(id).orElse(null);
-        if (tareaProcedimiento == null) {
-        	throw new NoDataFoundException();
-        }
-        return tareaProcedimiento;
+		return dao.findById(id).orElse(null);
 	}
 	
 	@Override
@@ -73,8 +68,8 @@ public class TareaProcedimientoServiceImpl implements ITareaProcedimientoService
 	@Transactional( readOnly = true)
 	public List<TareaProcedimiento> findByProcedimientoAndFaseTarea(Long procedimiento, String faseTarea) {
 		List<TareaProcedimiento> aTareaProcedimiento = dao.findByProcedimientoAndFaseTarea(procedimiento, faseTarea);
-		if(aTareaProcedimiento == null) {
-			throw new NoDataFoundException();
+		if (aTareaProcedimiento == null) {
+			return List.of();
 		}
 		return aTareaProcedimiento;
 	}

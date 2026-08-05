@@ -22,7 +22,7 @@ public class RdTemaDocumentoController {
 		
 		List<RdTemaDocumento> aTemaDocumento = service.findByIdOrgElemeAndIndActiv(idOrgEleme);
 		if(aTemaDocumento == null) {
-			throw new NoDataFoundException();
+			return java.util.Collections.emptyList();
 		}
 		return aTemaDocumento;
 	}

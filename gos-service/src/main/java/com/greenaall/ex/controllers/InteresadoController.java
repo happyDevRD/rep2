@@ -107,13 +107,13 @@ public class InteresadoController {
 				PersonaEntidad oPersonaEntidad = servicePersonaEntidad.findById(oPersonaEntidadPK);
 				if(oPersonaEntidad != null) {
 					PersonaEntidadDto oPersonaEntidadDto = PersonaEntidadValide.getPersonaDto(oPersonaEntidad);
-					if(oPersonaEntidad.getCodProvi() > 0) {
+					if(oPersonaEntidad.getCodProvi() != null && oPersonaEntidad.getCodProvi() > 0) {
 						Long codProvi = Long.valueOf(oPersonaEntidad.getCodProvi());
 						Provincia oProvincia = serviceProvincia.findById(codProvi);
 						if(oProvincia != null) {
 							oPersonaEntidadDto.setProvincia(oProvincia.getDesProvi());
 						}
-						if(oPersonaEntidad.getCodMunic() > 0) {
+						if(oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 							MunicipioPK MunicipioPK = new MunicipioPK();
 							MunicipioPK.setCodProvi(oPersonaEntidad.getCodProvi());
 							MunicipioPK.setCodMunic(oPersonaEntidad.getCodMunic());
@@ -170,13 +170,13 @@ public class InteresadoController {
 				PersonaEntidad oPersonaEntidad = servicePersonaEntidad.findById(oPersonaEntidadPK);
 				if(oPersonaEntidad != null) {
 					PersonaEntidadDto oPersonaEntidadDto = PersonaEntidadValide.getPersonaDto(oPersonaEntidad);
-					if(oPersonaEntidad.getCodProvi() > 0) {
+					if(oPersonaEntidad.getCodProvi() != null && oPersonaEntidad.getCodProvi() > 0) {
 						Long codProvi = Long.valueOf(oPersonaEntidad.getCodProvi());
 						Provincia oProvincia = serviceProvincia.findById(codProvi);
 						if(oProvincia != null) {
 							oPersonaEntidadDto.setProvincia(oProvincia.getDesProvi());
 						}
-						if(oPersonaEntidad.getCodMunic() > 0) {
+						if(oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 							MunicipioPK MunicipioPK = new MunicipioPK();
 							MunicipioPK.setCodProvi(oPersonaEntidad.getCodProvi());
 							MunicipioPK.setCodMunic(oPersonaEntidad.getCodMunic());
@@ -258,14 +258,14 @@ public class InteresadoController {
 				PersonaEntidad oPersonaEntidad = servicePersonaEntidad.findById(oPersonaEntidadPK);
 				if(oPersonaEntidad != null) {
 					PersonaEntidadDto oPersonaEntidadDto = PersonaEntidadValide.getPersonaDto(oPersonaEntidad);
-					if(oPersonaEntidad.getCodProvi() > 0) {
+					if(oPersonaEntidad.getCodProvi() != null && oPersonaEntidad.getCodProvi() > 0) {
 						Long codProvi = Long.valueOf(oPersonaEntidad.getCodProvi());
 						Provincia oProvincia = serviceProvincia.findById(codProvi);
 						if(oProvincia != null) {
 							oPersonaEntidadDto.setProvincia(oProvincia.getDesProvi());
 							oInteresadoDto.setDesProviInter(oProvincia.getDesProvi());
 						}
-						if(oPersonaEntidad.getCodMunic() > 0) {
+						if(oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 							MunicipioPK MunicipioPK = new MunicipioPK();
 							MunicipioPK.setCodProvi(oPersonaEntidad.getCodProvi());
 							MunicipioPK.setCodMunic(oPersonaEntidad.getCodMunic());
@@ -289,13 +289,13 @@ public class InteresadoController {
 				oPersonaEntidadPK.setIdPerso(aInteresado.get(i).getIdRepre());
 				PersonaEntidad oPersonaEntidadRepre = servicePersonaEntidad.findById(oPersonaEntidadPK);
 				if(oPersonaEntidadRepre != null) {				
-					if(oPersonaEntidadRepre.getCodProvi() > 0) {
+					if(oPersonaEntidadRepre.getCodProvi() != null && oPersonaEntidadRepre.getCodProvi() > 0) {
 						Long codProvi = Long.valueOf(oPersonaEntidadRepre.getCodProvi());
 						Provincia oProvincia = serviceProvincia.findById(codProvi);
 						if(oProvincia != null) {
 							oInteresadoDto.setDesProviRepre(oProvincia.getDesProvi());
 						}
-						if(oPersonaEntidadRepre.getCodMunic() > 0) {
+						if(oPersonaEntidadRepre.getCodMunic() != null && oPersonaEntidadRepre.getCodMunic() > 0) {
 							MunicipioPK MunicipioPK = new MunicipioPK();
 							MunicipioPK.setCodProvi(oPersonaEntidadRepre.getCodProvi());
 							MunicipioPK.setCodMunic(oPersonaEntidadRepre.getCodMunic());

@@ -120,7 +120,7 @@ public class TramitadorController {
 	@GetMapping("/tramitador/listar/{idExped}")
 	public List<Tramitador> listarPorExpediente(@PathVariable Long idExped) {
 		List<Tramitador> aTramitador = service.findByExpediente(idExped);
-		if(aTramitador.isEmpty() || aTramitador == null) {
+		if(aTramitador == null || aTramitador.isEmpty()) {
 			 throw new NoDataFoundException();
 		}
 		return aTramitador;

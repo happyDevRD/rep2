@@ -112,6 +112,29 @@ public class Expediente implements Serializable {
 	@Column(name = "fec_contr")
 	private Date fecContr;
 
+	/** Solo se usan al crear el expediente (preferencia de notificación del interesado); no se persisten en ex_expediente. */
+	@jakarta.persistence.Transient
+	private String email;
+
+	@jakarta.persistence.Transient
+	private Short forNotif;
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public Short getForNotif() {
+		return forNotif;
+	}
+
+	public void setForNotif(Short forNotif) {
+		this.forNotif = forNotif;
+	}
+
 	public Long getId() {
 		return id;
 	}

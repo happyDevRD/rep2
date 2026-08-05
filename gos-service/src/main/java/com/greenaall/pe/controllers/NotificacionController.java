@@ -179,13 +179,13 @@ public class NotificacionController {
 			PersonaEntidad oPersonaEntidad = servicePersonaEntidad.findById(oPersonaEntidadPK);
 			if (oPersonaEntidad != null) {
 				PersonaEntidadDto oPersonaEntidadDto = PersonaEntidadValide.getPersonaDto(oPersonaEntidad);
-				if (oPersonaEntidad.getCodProvi() > 0) {
+				if (oPersonaEntidad.getCodProvi() != null && oPersonaEntidad.getCodProvi() > 0) {
 					Long codProvi = Long.valueOf(oPersonaEntidad.getCodProvi());
 					Provincia oProvincia = serviceProvincia.findById(codProvi);
 					if (oProvincia != null) {
 						oPersonaEntidadDto.setProvincia(oProvincia.getDesProvi());
 					}
-					if (oPersonaEntidad.getCodMunic() > 0) {
+					if (oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 						MunicipioPK MunicipioPK = new MunicipioPK();
 						MunicipioPK.setCodProvi(oPersonaEntidad.getCodProvi());
 						MunicipioPK.setCodMunic(oPersonaEntidad.getCodMunic());
@@ -280,7 +280,7 @@ public class NotificacionController {
 		List<Notificacion> aNotificacion = service.findByEjeExpedAndNumExped(ejeExped, numExped);
 
 		if (aNotificacion == null || aNotificacion.isEmpty()) {
-			throw new NoDataFoundException();
+			return new ArrayList<NotificacionDto>();
 		}
 
 		List<NotificacionDto> aNotificacionDto = new ArrayList<NotificacionDto>();
@@ -381,13 +381,13 @@ public class NotificacionController {
 				PersonaEntidad oPersonaEntidad = servicePersonaEntidad.findById(oPersonaEntidadPK);
 				if (oPersonaEntidad != null) {
 					PersonaEntidadDto oPersonaEntidadDto = PersonaEntidadValide.getPersonaDto(oPersonaEntidad);
-					if (oPersonaEntidad.getCodProvi() > 0) {
+					if (oPersonaEntidad.getCodProvi() != null && oPersonaEntidad.getCodProvi() > 0) {
 						Long codProvi = Long.valueOf(oPersonaEntidad.getCodProvi());
 						Provincia oProvincia = serviceProvincia.findById(codProvi);
 						if (oProvincia != null) {
 							oPersonaEntidadDto.setProvincia(oProvincia.getDesProvi());
 						}
-						if (oPersonaEntidad.getCodMunic() > 0) {
+						if (oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 							MunicipioPK MunicipioPK = new MunicipioPK();
 							MunicipioPK.setCodProvi(oPersonaEntidad.getCodProvi());
 							MunicipioPK.setCodMunic(oPersonaEntidad.getCodMunic());

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 
 import com.greenaall.exception.ErrorFicheroTeuException;
-import com.greenaall.exception.NoDataFoundException;
 import com.greenaall.models.ge.entity.ParametroSistema;
 import com.greenaall.models.ge.entity.ParametroSistemaPK;
 import com.greenaall.models.ge.service.IParametroSistemaService;
@@ -56,8 +55,8 @@ public class ModeloTeuController extends WebServiceGatewaySupport{
 	@GetMapping("/modeloTeu/listar")
 	public List<ModeloTeu> listar() {
 		List<ModeloTeu> aModeloTeu = service.findAll();
-		if(aModeloTeu == null || aModeloTeu.isEmpty()) {
-			throw new NoDataFoundException();
+		if (aModeloTeu == null || aModeloTeu.isEmpty()) {
+			return java.util.Collections.emptyList();
 		}
 		return aModeloTeu;
 	}

@@ -142,9 +142,10 @@ public class SolicitudController {
 			if (maxPersona == null) {
 				maxPersona = new BigDecimal("1");
 			} else {
-				maxPersona = max.add(new BigDecimal("1"));
+				maxPersona = maxPersona.add(new BigDecimal("1"));
 			}
-			oPersonaNueva.setIdPerso(max.longValue());
+			oPersonaNueva.setIdPerso(maxPersona.longValue());
+			oPersonaNueva.setIdHisPerso(maxPersona.longValue());
 			if (solicitud.getUsuario() != null) {
 				oPersonaNueva.setUsuContr(solicitud.getUsuario());
 			}
@@ -191,11 +192,11 @@ public class SolicitudController {
 				oPersonaNueva.setCodPosta(solicitud.getCodPosta());
 			}
 
-			if (solicitud.getCodProvi() > 0) {
+			if (solicitud.getCodProvi() != null && solicitud.getCodProvi() > 0) {
 				oPersonaNueva.setCodProvi(solicitud.getCodProvi());
 			}
 
-			if (solicitud.getCodMunic() > 0) {
+			if (solicitud.getCodMunic() != null && solicitud.getCodMunic() > 0) {
 				String stringValue = Short.toString(solicitud.getCodMunic());
 				stringValue = stringValue.substring(stringValue.length() - 3);
 				Short myShort = Short.valueOf(stringValue);
@@ -231,9 +232,10 @@ public class SolicitudController {
 			if (maxPersona == null) {
 				maxPersona = new BigDecimal("1");
 			} else {
-				maxPersona = max.add(new BigDecimal("1"));
+				maxPersona = maxPersona.add(new BigDecimal("1"));
 			}
-			oPersonaRespresentanteNueva.setIdPerso(max.longValue());
+			oPersonaRespresentanteNueva.setIdPerso(maxPersona.longValue());
+			oPersonaRespresentanteNueva.setIdHisPerso(maxPersona.longValue());
 
 			if (solicitud.getUsuContr() != null) {
 				oPersonaRespresentanteNueva.setUsuContr(solicitud.getUsuContr());
@@ -274,11 +276,11 @@ public class SolicitudController {
 				oPersonaRespresentanteNueva.setCodPosta(solicitud.getCodPostaRepre());
 			}
 
-			if (solicitud.getCodProviRepre() > 0) {
+			if (solicitud.getCodProviRepre() != null && solicitud.getCodProviRepre() > 0) {
 				oPersonaRespresentanteNueva.setCodProvi(solicitud.getCodProviRepre());
 			}
 
-			if (solicitud.getCodMunicRepre() > 0) {
+			if (solicitud.getCodMunicRepre() != null && solicitud.getCodMunicRepre() > 0) {
 				String stringValue = Short.toString(solicitud.getCodMunicRepre());
 				stringValue = stringValue.substring(stringValue.length() - 3);
 				Short myShort = Short.valueOf(stringValue);
@@ -331,6 +333,19 @@ public class SolicitudController {
 			oPersonaRepreNueva.setIdPerRepre(solicitud.getIdRepre());
 			oPersonaRepreNueva.setFecIni(new Date());
 			personaRepresentateService.save(oPersonaRepreNueva);
+		}
+
+		if (oPersonaNueva != null) {
+			oSolicitudNueva.setIdHisPerso(oPersonaNueva.getIdHisPerso());
+			oSolicitudNueva.setIdPerso(oPersonaNueva.getIdPerso());
+		}
+
+		if (oPersonaRespresentanteNueva != null) {
+			oSolicitudNueva.setIdHisRepre(oPersonaRespresentanteNueva.getIdHisPerso());
+			oSolicitudNueva.setIdRepre(oPersonaRespresentanteNueva.getIdPerso());
+		} else if (solicitud.getIdHisRepre() != null) {
+			oSolicitudNueva.setIdHisRepre(solicitud.getIdHisRepre());
+			oSolicitudNueva.setIdRepre(solicitud.getIdRepre());
 		}
 
 		Integer numero = max.intValue();
@@ -398,13 +413,13 @@ public class SolicitudController {
 			PersonaEntidad oPersonaEntidad = servicePersonaEntidad.findById(oPersonaEntidadPK);
 			if (oPersonaEntidad != null) {
 				PersonaEntidadDto oPersonaEntidadDto = PersonaEntidadValide.getPersonaDto(oPersonaEntidad);
-				if (oPersonaEntidad.getCodProvi() > 0) {
+				if (oPersonaEntidad.getCodProvi() != null && oPersonaEntidad.getCodProvi() > 0) {
 					Long codProvi = Long.valueOf(oPersonaEntidad.getCodProvi());
 					Provincia oProvincia = serviceProvincia.findById(codProvi);
 					if (oProvincia != null) {
 						oPersonaEntidadDto.setProvincia(oProvincia.getDesProvi());
 					}
-					if (oPersonaEntidad.getCodMunic() > 0) {
+					if (oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 						MunicipioPK MunicipioPK = new MunicipioPK();
 						MunicipioPK.setCodProvi(oPersonaEntidad.getCodProvi());
 						MunicipioPK.setCodMunic(oPersonaEntidad.getCodMunic());
@@ -503,13 +518,13 @@ public class SolicitudController {
 					PersonaEntidad oPersonaEntidad = servicePersonaEntidad.findById(oPersonaEntidadPK);
 					if (oPersonaEntidad != null) {
 						PersonaEntidadDto oPersonaEntidadDto = PersonaEntidadValide.getPersonaDto(oPersonaEntidad);
-						if (oPersonaEntidad.getCodProvi() > 0) {
+						if (oPersonaEntidad.getCodProvi() != null && oPersonaEntidad.getCodProvi() > 0) {
 							Long codProvi = Long.valueOf(oPersonaEntidad.getCodProvi());
 							Provincia oProvincia = serviceProvincia.findById(codProvi);
 							if (oProvincia != null) {
 								oPersonaEntidadDto.setProvincia(oProvincia.getDesProvi());
 							}
-							if (oPersonaEntidad.getCodMunic() > 0) {
+							if (oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 								MunicipioPK MunicipioPK = new MunicipioPK();
 								MunicipioPK.setCodProvi(oPersonaEntidad.getCodProvi());
 								MunicipioPK.setCodMunic(oPersonaEntidad.getCodMunic());
@@ -622,13 +637,13 @@ public class SolicitudController {
 					PersonaEntidad oPersonaEntidad = servicePersonaEntidad.findById(oPersonaEntidadPK);
 					if (oPersonaEntidad != null) {
 						PersonaEntidadDto oPersonaEntidadDto = PersonaEntidadValide.getPersonaDto(oPersonaEntidad);
-						if (oPersonaEntidad.getCodProvi() > 0) {
+						if (oPersonaEntidad.getCodProvi() != null && oPersonaEntidad.getCodProvi() > 0) {
 							Long codProvi = Long.valueOf(oPersonaEntidad.getCodProvi());
 							Provincia oProvincia = serviceProvincia.findById(codProvi);
 							if (oProvincia != null) {
 								oPersonaEntidadDto.setProvincia(oProvincia.getDesProvi());
 							}
-							if (oPersonaEntidad.getCodMunic() > 0) {
+							if (oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 								MunicipioPK MunicipioPK = new MunicipioPK();
 								MunicipioPK.setCodProvi(oPersonaEntidad.getCodProvi());
 								MunicipioPK.setCodMunic(oPersonaEntidad.getCodMunic());

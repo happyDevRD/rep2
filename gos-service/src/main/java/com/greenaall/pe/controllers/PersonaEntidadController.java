@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.greenaall.exception.NoDataFoundException;
 import com.greenaall.models.pe.entity.PersonaContacto;
 import com.greenaall.models.pe.entity.PersonaEntidad;
 import com.greenaall.models.pe.service.IPersonaEntidadService;
@@ -42,18 +43,18 @@ public class PersonaEntidadController {
 	
 	@GetMapping("/personaEntidad/ver/{numDocum}")
 	public PersonaEntidadDto detalle(@PathVariable String numDocum){
-		
+
 		PersonaEntidad oPersonaEntidad =  personaEntidadService.findByNumDocum(numDocum);
 		
 		if(oPersonaEntidad != null) {
 			PersonaEntidadDto oPersonaEntidadDto = PersonaEntidadValide.getPersonaDto(oPersonaEntidad);
-			if(oPersonaEntidad.getCodProvi() > 0) {
+			if(oPersonaEntidad.getCodProvi() != null && oPersonaEntidad.getCodProvi() > 0) {
 				Long codProvi = Long.valueOf(oPersonaEntidad.getCodProvi());
 				Provincia oProvincia = serviceProvincia.findById(codProvi);
 				if(oProvincia != null) {
 					oPersonaEntidadDto.setProvincia(oProvincia.getDesProvi());
 				}
-				if(oPersonaEntidad.getCodMunic() > 0) {
+				if(oPersonaEntidad.getCodMunic() != null && oPersonaEntidad.getCodMunic() > 0) {
 					MunicipioPK MunicipioPK = new MunicipioPK();
 					MunicipioPK.setCodProvi(oPersonaEntidad.getCodProvi());
 					MunicipioPK.setCodMunic(oPersonaEntidad.getCodMunic());
@@ -64,36 +65,35 @@ public class PersonaEntidadController {
 						oPersonaEntidadDto.setCodProvi(String.valueOf(oPersonaEntidad.getCodProvi()));
 					}
 				}
-				
-				List<PersonaContacto> aContacto = servicePersonaContacto
-						.findByIdHisPersoAndIdPerso(oPersonaEntidad.getIdHisPerso(), oPersonaEntidad.getIdPerso());
-				if (aContacto != null) {
-					for (int h = 0; h < aContacto.size(); h++) {
-						if (aContacto.get(h).getTipConta() != null
-								&& aContacto.get(h).getTipConta().equals(Short.valueOf((short) 4))
-								&& aContacto.get(h).getDatConta() != null) {
-							oPersonaEntidadDto.setEmail( aContacto.get(h).getDatConta());
-						}
-						if (aContacto.get(h).getTipConta() != null
-								&& aContacto.get(h).getTipConta().equals(Short.valueOf((short) 1))
-								&& aContacto.get(h).getDatConta() != null) {
-							oPersonaEntidadDto.setTelFijo(aContacto.get(h).getDatConta());
+			}
 
-						}
-						if (aContacto.get(h).getTipConta() != null
-								&& aContacto.get(h).getTipConta().equals(Short.valueOf((short) 2))
-								&& aContacto.get(h).getDatConta() != null) {
-							oPersonaEntidadDto.setTelMovil(aContacto.get(h).getDatConta());
+			List<PersonaContacto> aContacto = servicePersonaContacto
+					.findByIdHisPersoAndIdPerso(oPersonaEntidad.getIdHisPerso(), oPersonaEntidad.getIdPerso());
+			if (aContacto != null) {
+				for (int h = 0; h < aContacto.size(); h++) {
+					if (aContacto.get(h).getTipConta() != null
+							&& aContacto.get(h).getTipConta().equals(Short.valueOf((short) 4))
+							&& aContacto.get(h).getDatConta() != null) {
+						oPersonaEntidadDto.setEmail( aContacto.get(h).getDatConta());
+					}
+					if (aContacto.get(h).getTipConta() != null
+							&& aContacto.get(h).getTipConta().equals(Short.valueOf((short) 1))
+							&& aContacto.get(h).getDatConta() != null) {
+						oPersonaEntidadDto.setTelFijo(aContacto.get(h).getDatConta());
 
-						}
+					}
+					if (aContacto.get(h).getTipConta() != null
+							&& aContacto.get(h).getTipConta().equals(Short.valueOf((short) 2))
+							&& aContacto.get(h).getDatConta() != null) {
+						oPersonaEntidadDto.setTelMovil(aContacto.get(h).getDatConta());
+
 					}
 				}
-								
-				return oPersonaEntidadDto;
 			}
-		
+
+			return oPersonaEntidadDto;
 		}
-		return null;
+		throw new NoDataFoundException();
 	}
 	
 	@PutMapping("/personaEntidad/editar")
