@@ -48,6 +48,7 @@ public class ExpedienteDto implements Serializable {
 	private String forNotifTexto;
 	private String serieDocumental;
 	private String insideEstado;
+	private String archiveEstado;
 
 	public String getInsideEstado() {
 		return insideEstado;
@@ -55,6 +56,14 @@ public class ExpedienteDto implements Serializable {
 
 	public void setInsideEstado(String insideEstado) {
 		this.insideEstado = insideEstado;
+	}
+
+	public String getArchiveEstado() {
+		return archiveEstado;
+	}
+
+	public void setArchiveEstado(String archiveEstado) {
+		this.archiveEstado = archiveEstado;
 	}
 
 	public String getForNotifTexto() {

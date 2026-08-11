@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.greenaall.archive.service.ArchiveEnvioService;
+import com.greenaall.archive.service.ArchiveExpedienteEnvioService;
 import com.greenaall.ex.util.ExpedienteValide;
 import com.greenaall.inside.service.InsideEnvioService;
 import com.greenaall.inside.service.InsideExpedienteEnvioService;
@@ -182,6 +184,18 @@ public class ExpedienteController {
 
 	@Value("${inside.auto-envio-on-close:false}")
 	private boolean autoEnvioInsideOnClose;
+
+	@Autowired
+	private ArchiveEnvioService archiveEnvioService;
+
+	@Autowired
+	private ArchiveExpedienteEnvioService archiveExpedienteEnvioService;
+
+	@Value("${archive.registrar-pendiente-on-close:true}")
+	private boolean registrarPendienteArchiveOnClose;
+
+	@Value("${archive.auto-envio-on-close:false}")
+	private boolean autoEnvioArchiveOnClose;
 
 	@PutMapping("/expediente/devolverExpediente/{idExped}/{idOrgUsuar}/{usuario}")
 	@ResponseStatus(HttpStatus.CREATED)
@@ -671,6 +685,11 @@ public class ExpedienteController {
 			} catch (Exception e) {
 				oExpDtoNew.setInsideEstado("");
 			}
+			try {
+				oExpDtoNew.setArchiveEstado(archiveEnvioService.obtenerEstadoResumen(oExpedientes.getId()));
+			} catch (Exception e) {
+				oExpDtoNew.setArchiveEstado("");
+			}
 			aExpedienteDto.add(oExpDtoNew);
 		}
 
@@ -827,6 +846,26 @@ public class ExpedienteController {
 						oExpediente.getInstructor());
 			} catch (Exception e) {
 				System.err.println("No se pudo enviar automáticamente a INSIDE tras el cierre: " + e.getMessage());
+			}
+		}
+
+		if (registrarPendienteArchiveOnClose && !aTareaArchivo.isEmpty()) {
+			try {
+				archiveEnvioService.registrarPendienteCierreExpediente(
+						oExpediente.getId(),
+						oExpediente.getInstructor());
+			} catch (Exception e) {
+				System.err.println("No se pudo registrar envío ARCHIVE pendiente: " + e.getMessage());
+			}
+		}
+
+		if (autoEnvioArchiveOnClose && !aTareaArchivo.isEmpty()) {
+			try {
+				archiveExpedienteEnvioService.enviarPreingresoSIP(
+						oExpediente.getId(),
+						oExpediente.getInstructor());
+			} catch (Exception e) {
+				System.err.println("No se pudo enviar automáticamente a ARCHIVE tras el cierre: " + e.getMessage());
 			}
 		}
 
