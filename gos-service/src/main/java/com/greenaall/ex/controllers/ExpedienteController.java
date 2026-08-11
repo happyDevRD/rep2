@@ -726,7 +726,7 @@ public class ExpedienteController {
 			for (int i = 0; i < aTramite.size(); i++) {
 				List<TareaTramiteExpediente> aTarea = serviceTareaTramiteExpediente
 						.findByTramite(aTramite.get(i).getId());
-				if (!aTarea.isEmpty() && aTarea != null) {
+				if (aTarea != null && !aTarea.isEmpty()) {
 					for (int h = 0; h < aTarea.size(); h++) {
 						if (aTarea.get(h).getFecFin() == null) {
 							throw new NoFechaFinException();
