@@ -22,7 +22,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			"/notifica/adviser",
 			"/actuator/health");
 
-	@Value("${jwt.enabled:false}")
+	@Value("${jwt.enabled:true}")
 	private boolean jwtEnabled;
 
 	@Override

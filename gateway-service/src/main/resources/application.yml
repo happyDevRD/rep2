@@ -20,10 +20,3 @@ spring:
           - Path=/api/gos/**
         filters:
           - StripPrefix=2
-      - id: oauth-service
-        uri: lb://oauth-service
-        predicates:
-          - Path=/api/security/**
-        filters:
-          - StripPrefix=2
-          
