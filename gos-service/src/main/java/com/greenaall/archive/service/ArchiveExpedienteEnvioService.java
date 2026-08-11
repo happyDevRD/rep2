@@ -101,7 +101,10 @@ public class ArchiveExpedienteEnvioService {
 			String identificador = expediente.getEjercicio().toString() + expediente.getNumero().toString();
 
 			if (archiveSoapClientService.isModoDryRun()) {
-				return enviarPreingresoSipDryRun(expediente, usuContr, identificador, resultado);
+				ArchiveEnvioResultadoDto resultadoDryRun = enviarPreingresoSipDryRun(expediente, usuContr,
+						identificador, resultado);
+				marcarArchivado(expediente);
+				return resultadoDryRun;
 			}
 
 			File zipSip = resolveZipSip(expediente);
@@ -153,15 +156,18 @@ public class ArchiveExpedienteEnvioService {
 			resultado.setCodigoRespuesta(soapResponse.getRetorno());
 			resultado.setIdentificadorEni(soapResponse.getPrimerIdentificadorEni());
 			registrarExito(expedienteId, usuContr, resultado);
-
-			expediente.setEstado(EnumEstadoExpediente.ARCHIVADO);
-			expediente.setFecContr(new Date());
-			expedienteService.save(expediente);
+			marcarArchivado(expediente);
 
 			return resultado;
 		} catch (Exception e) {
 			return registrarError(expedienteId, usuContr, resultado, e.getMessage());
 		}
+	}
+
+	private void marcarArchivado(Expediente expediente) {
+		expediente.setEstado(EnumEstadoExpediente.ARCHIVADO);
+		expediente.setFecContr(new Date());
+		expedienteService.save(expediente);
 	}
 
 	private ArchiveEnvioResultadoDto enviarPreingresoSipDryRun(Expediente expediente, String usuContr,
