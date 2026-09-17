@@ -826,6 +826,7 @@ public class ExpedienteController {
 		} else {
 			oExpediente.setFecFin(new Date());
 		}
+		oExpediente.setSerieDocumental(expediente.getSerieDocumental());
 		oExpediente.setFecContr(new Date());
 		service.save(oExpediente);
 
@@ -860,13 +861,9 @@ public class ExpedienteController {
 		}
 
 		if (autoEnvioArchiveOnClose && !aTareaArchivo.isEmpty()) {
-			try {
-				archiveExpedienteEnvioService.enviarPreingresoSIP(
-						oExpediente.getId(),
-						oExpediente.getInstructor());
-			} catch (Exception e) {
-				System.err.println("No se pudo enviar automáticamente a ARCHIVE tras el cierre: " + e.getMessage());
-			}
+			archiveExpedienteEnvioService.enviarPreingresoSIPAsync(
+					oExpediente.getId(),
+					oExpediente.getInstructor());
 		}
 
 		return oExpediente;

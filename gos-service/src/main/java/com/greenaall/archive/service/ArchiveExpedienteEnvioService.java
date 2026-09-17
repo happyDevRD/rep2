@@ -3,19 +3,22 @@ package com.greenaall.archive.service;
 import java.io.File;
 import java.nio.file.Files;
 import java.security.MessageDigest;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.greenaall.archive.dto.ArchiveEnvioResultadoDto;
 import com.greenaall.archive.dto.ArchiveGenerarSipRequestDto;
 import com.greenaall.archive.dto.ArchiveRegistrarEnvioRequest;
+import com.greenaall.inside.mapper.InsideIflowMapper;
 import com.greenaall.models.ad.entity.OrganizacionElemento;
 import com.greenaall.models.ad.entity.OrganizacionUsuario;
 import com.greenaall.models.ad.service.OrganizacionElementoServiceImpl;
@@ -35,7 +38,7 @@ import com.greenaall.models.pe.service.PersonaEntidadServiceImpl;
 @Service
 public class ArchiveExpedienteEnvioService {
 
-	private static final String FORMATO_FECHA = "dd/MM/yyyy";
+	private static final Logger log = LoggerFactory.getLogger(ArchiveExpedienteEnvioService.class);
 
 	@Autowired
 	private ExpedienteServiceImpl expedienteService;
@@ -82,6 +85,15 @@ public class ArchiveExpedienteEnvioService {
 	@Value("${archive.soap.metadata.tipo-documental-default:TD99}")
 	private String tipoDocumentalDefault;
 
+	/**
+	 * Variante asíncrona para el hook de cierre de expediente: evita que la
+	 * petición HTTP de cierre quede bloqueada esperando la respuesta de ARCHIVE.
+	 */
+	@Async
+	public void enviarPreingresoSIPAsync(Long expedienteId, String usuContr) {
+		enviarPreingresoSIP(expedienteId, usuContr);
+	}
+
 	public ArchiveEnvioResultadoDto enviarPreingresoSIP(Long expedienteId, String usuContr) {
 		ArchiveEnvioResultadoDto resultado = new ArchiveEnvioResultadoDto();
 		resultado.setModoDryRun(archiveSoapClientService.isModoDryRun());
@@ -98,12 +110,18 @@ public class ArchiveExpedienteEnvioService {
 						"El expediente debe estar cerrado para el preingreso en ARCHIVE.");
 			}
 
+			String estadoPrevio = archiveEnvioService.obtenerEstadoResumen(expedienteId);
+			if (GfEnvioArchive.ESTADO_ENVIADO.equals(estadoPrevio) || GfEnvioArchive.ESTADO_SIMULADO.equals(estadoPrevio)) {
+				return registrarError(expedienteId, usuContr, resultado,
+						"El expediente ya fue enviado a ARCHIVE anteriormente.");
+			}
+
 			String identificador = expediente.getEjercicio().toString() + expediente.getNumero().toString();
 
 			if (archiveSoapClientService.isModoDryRun()) {
 				ArchiveEnvioResultadoDto resultadoDryRun = enviarPreingresoSipDryRun(expediente, usuContr,
 						identificador, resultado);
-				marcarArchivado(expediente);
+				marcarArchivadoSinPropagarError(expediente);
 				return resultadoDryRun;
 			}
 
@@ -122,7 +140,9 @@ public class ArchiveExpedienteEnvioService {
 			request.setIdentificadorArchivoDestino(centroArchivo);
 			request.setZipBase64(zipBase64);
 			request.setHuellaDigital(huella);
-			request.setClasificacion(clasificacionDefault);
+			request.setClasificacion(expediente.getSerieDocumental() != null && !expediente.getSerieDocumental().isBlank()
+					? expediente.getSerieDocumental()
+					: clasificacionDefault);
 			request.setFechaApertura(formatearFecha(expediente.getFecInicio()));
 			request.setFechaFin(formatearFecha(expediente.getFecFin()));
 			request.setOrganoExpediente(organo);
@@ -155,19 +175,34 @@ public class ArchiveExpedienteEnvioService {
 			resultado.setExito(true);
 			resultado.setCodigoRespuesta(soapResponse.getRetorno());
 			resultado.setIdentificadorEni(soapResponse.getPrimerIdentificadorEni());
+			// El parser solo captura un tag genérico <descripcion>, reutilizado aquí:
+			// ARCHIVE lo rellena tanto en fallos como en confirmaciones de éxito.
+			resultado.setDescripcionRespuesta(soapResponse.getDescripcionError());
 			registrarExito(expedienteId, usuContr, resultado);
-			marcarArchivado(expediente);
+			marcarArchivadoSinPropagarError(expediente);
 
 			return resultado;
 		} catch (Exception e) {
-			return registrarError(expedienteId, usuContr, resultado, e.getMessage());
+			log.error("Fallo en preingreso ARCHIVE para expediente {}", expedienteId, e);
+			String mensaje = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+			return registrarError(expedienteId, usuContr, resultado, mensaje);
 		}
 	}
 
-	private void marcarArchivado(Expediente expediente) {
-		expediente.setEstado(EnumEstadoExpediente.ARCHIVADO);
-		expediente.setFecContr(new Date());
-		expedienteService.save(expediente);
+	/**
+	 * El envío SOAP a ARCHIVE ya tuvo éxito y quedó registrado en gf_envio_archive
+	 * antes de esta llamada: un fallo aquí no debe reportarse como fallo del envío
+	 * ni disparar un reintento que duplique el preingreso en RedSARA.
+	 */
+	private void marcarArchivadoSinPropagarError(Expediente expediente) {
+		try {
+			expediente.setEstado(EnumEstadoExpediente.ARCHIVADO);
+			expediente.setFecContr(new Date());
+			expedienteService.save(expediente);
+		} catch (Exception e) {
+			log.error("Preingreso ARCHIVE del expediente {} confirmado pero no se pudo marcar ARCHIVADO localmente",
+					expediente.getId(), e);
+		}
 	}
 
 	private ArchiveEnvioResultadoDto enviarPreingresoSipDryRun(Expediente expediente, String usuContr,
@@ -247,7 +282,7 @@ public class ArchiveExpedienteEnvioService {
 		if (fecha == null) {
 			return "";
 		}
-		return new SimpleDateFormat(FORMATO_FECHA).format(fecha);
+		return InsideIflowMapper.formatFechaEniDate(fecha);
 	}
 
 	private ArchiveEnvioResultadoDto registrarExito(Long expedienteId, String usuContr,

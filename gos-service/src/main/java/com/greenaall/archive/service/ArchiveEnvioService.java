@@ -69,7 +69,7 @@ public class ArchiveEnvioService {
 	public List<ArchiveEnvioDto> listarPorExpediente(Long idExpediente) {
 		try {
 			return envioArchiveDao
-					.findByIdExpedienteAndActivoOrderByFecContrDesc(idExpediente, GfEnvioArchive.ACTIVO_SI)
+					.findByIdExpedienteAndActivoOrderByFecContrDescIdEnvioDesc(idExpediente, GfEnvioArchive.ACTIVO_SI)
 					.stream()
 					.map(this::toDto)
 					.collect(Collectors.toList());
@@ -83,7 +83,8 @@ public class ArchiveEnvioService {
 	public String obtenerEstadoResumen(Long idExpediente) {
 		try {
 			return envioArchiveDao
-					.findFirstByIdExpedienteAndActivoOrderByFecContrDesc(idExpediente, GfEnvioArchive.ACTIVO_SI)
+					.findFirstByIdExpedienteAndActivoOrderByFecContrDescIdEnvioDesc(idExpediente,
+							GfEnvioArchive.ACTIVO_SI)
 					.map(GfEnvioArchive::getEstadoEnvio)
 					.orElse("");
 		} catch (DataAccessException ex) {
@@ -96,7 +97,8 @@ public class ArchiveEnvioService {
 	public ArchiveEnvioDto obtenerUltimoPorExpediente(Long idExpediente) {
 		try {
 			return envioArchiveDao
-					.findFirstByIdExpedienteAndActivoOrderByFecContrDesc(idExpediente, GfEnvioArchive.ACTIVO_SI)
+					.findFirstByIdExpedienteAndActivoOrderByFecContrDescIdEnvioDesc(idExpediente,
+							GfEnvioArchive.ACTIVO_SI)
 					.map(this::toDto)
 					.orElse(null);
 		} catch (DataAccessException ex) {

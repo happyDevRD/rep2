@@ -78,6 +78,9 @@ public class Expediente implements Serializable {
 	@Column(name = "instructor")
 	private String instructor;
 
+	@Column(name = "serie_documental")
+	private String serieDocumental;
+
 	@Column(name = "procedimiento")
 	private Long procedimiento;
 
@@ -237,6 +240,14 @@ public class Expediente implements Serializable {
 
 	public void setInstructor(String instructor) {
 		this.instructor = instructor;
+	}
+
+	public String getSerieDocumental() {
+		return serieDocumental;
+	}
+
+	public void setSerieDocumental(String serieDocumental) {
+		this.serieDocumental = serieDocumental;
 	}
 
 	public Long getProcedimiento() {

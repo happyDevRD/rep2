@@ -30,16 +30,24 @@ public class ArchiveSoapClientService {
 	public ArchiveSoapParsedResponse invoke(String operation, String soapAction, String envelope,
 			String identificadorDryRun) throws Exception {
 		String rawXml;
+		int statusCode = 200;
 		if (modoDryRun) {
 			rawXml = ArchiveSoapDryRunResponseBuilder.build(operation, identificadorDryRun);
 		} else {
-			rawXml = postSoap(archiveWsUrl, soapAction, envelope);
+			HttpResponse<String> response = postSoap(archiveWsUrl, soapAction, envelope);
+			statusCode = response.statusCode();
+			rawXml = response.body();
 		}
 
-		return archiveSoapResponseParser.parse(rawXml);
+		ArchiveSoapParsedResponse parsed = archiveSoapResponseParser.parse(rawXml);
+		if (statusCode >= 400 && !parsed.hasFault() && !parsed.hasErrorArchive()) {
+			throw new IllegalStateException("ARCHIVE respondió con código HTTP " + statusCode);
+		}
+
+		return parsed;
 	}
 
-	private String postSoap(String targetUrl, String soapAction, String envelope) throws Exception {
+	private HttpResponse<String> postSoap(String targetUrl, String soapAction, String envelope) throws Exception {
 		HttpClient client = archiveSoapHttpClientFactory.createClient();
 
 		HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
@@ -52,12 +60,7 @@ public class ArchiveSoapClientService {
 			requestBuilder.header("SOAPAction", "\"" + soapAction + "\"");
 		}
 
-		HttpResponse<String> response = client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
-		if (response.statusCode() >= 400) {
-			throw new IllegalStateException("ARCHIVE respondió con código HTTP " + response.statusCode());
-		}
-
-		return response.body();
+		return client.send(requestBuilder.build(), HttpResponse.BodyHandlers.ofString());
 	}
 
 	public String resolveArchiveWsUrl() {
